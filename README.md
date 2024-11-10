@@ -423,7 +423,7 @@ Technologies used in the project:
 
 ---
 
-<p align="left"><img src="https://profile-counter.glitch.me/django-a-books-5/count.svg" alt="desphixs" /></p>
+<p align="left"><img src="https://profile-counter.glitch.me/django-v-todo-5/count.svg" alt="desphixs" /></p>
 
 ---
 
