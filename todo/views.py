@@ -1,8 +1,12 @@
 from django.shortcuts import render
+from django.http import Http404
+
+
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from django.http import Http404
+
+#
 from . import serializers
 from . import models
 
@@ -11,25 +15,42 @@ from . import models
 
 
 class TodoList(APIView):
-
     def get(self, request):
         todos = models.Todo.objects.all()
         serializer = serializers.TodoSerializer(todos, many=True)
         return Response(serializer.data)
+        # return Response(
+        #     {
+        #         "data": serializer.data,
+        #         "message": "Successfully Get Todo",
+        #     }
+        # )
 
     def post(self, request):
         serializer = serializers.TodoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data)
+            # return Response(
+            #     {
+            #         "data": serializer.data,
+            #         "message": "Todo created successfully",
+            #     },
+            #     status=status.HTTP_201_CREATED,
+            # )
+        return Response(
+            {
+                "error": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class TodoDetail(APIView):
-
     def get_object(self, pk):
         try:
-            return models.Todo.objects.get(pk=pk)
+            todo = models.Todo.objects.get(pk=pk)
+            return todo
         except models.Todo.DoesNotExist:
             raise Http404
 
@@ -38,13 +59,34 @@ class TodoDetail(APIView):
         serializer = serializers.TodoSerializer(todo)
         return Response(serializer.data)
 
+        # return Response(
+        #     {
+        #         "data": serializer.data,
+        #         "message": "Successfully Get Todo",
+        #     },
+        #     status=status.HTTP_200_OK,
+        # )
+
     def patch(self, request, pk):
         todo = self.get_object(pk)
         serializer = serializers.TodoSerializer(todo, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # return Response(
+            #     {
+            #         "data": serializer.data,
+            #         "message": "Todo Updated Successfully",
+            #     },
+            #     status=status.HTTP_200_OK,
+            # )
+        return Response(
+            {
+                "error": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     def delete(self, request, pk):
         todo = self.get_object(pk)
